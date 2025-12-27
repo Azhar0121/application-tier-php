@@ -8,33 +8,42 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
 try {
-    require_once __DIR__ . '/../app/config/Config.php';
-    require_once __DIR__ . '/../app/config/Database.php';
-    require_once __DIR__ . '/../app/core/Model.php';
-    require_once __DIR__ . '/../app/core/Controller.php';
-    require_once __DIR__ . '/../app/core/App.php';
-    require_once __DIR__ . '/../app/models/Inventaris.php';
-    require_once __DIR__ . '/../app/services/InventarisService.php';
-    require_once __DIR__ . '/../app/controllers/InventarisController.php';
+    require_once '../app/config/Config.php';
+    require_once '../app/config/Database.php';
+    require_once '../app/core/Model.php';
+    require_once '../app/core/Controller.php';
+    require_once '../app/models/Mahasiswa.php';
+    require_once '../app/services/MahasiswaService.php';
+    require_once '../app/controllers/MahasiswaController.php';
 
-    new App();
-
-} catch (Throwable $e) {
-
+    // Inventaris resources (multi-db support)
+    require_once '../app/models/Inventaris.php';
+    require_once '../app/services/InventarisService.php';
+    require_once '../app/controllers/InventarisController.php';
+    require_once '../app/core/App.php';
+    
+    $app = new App();
+    
+} catch (Exception $e) {
     http_response_code(500);
-
     echo json_encode([
         'success' => false,
-        'message' => 'Internal Server Error',
-        'error'   => $e->getMessage(),
-        'file'    => $e->getFile(),
-        'line'    => $e->getLine()
+        'error' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ], JSON_PRETTY_PRINT);
+} catch (Error $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
     ], JSON_PRETTY_PRINT);
 }

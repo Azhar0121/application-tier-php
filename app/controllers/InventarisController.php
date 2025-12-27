@@ -5,7 +5,8 @@ class InventarisController extends Controller {
     private $service;
 
     public function __construct() {
-        $db = (new Database())->getConnection();
+        // gunakan koneksi khusus untuk inventaris (inventaris_lab_db)
+        $db = (new Database('inventaris'))->getConnection();
         $inventarisModel = new Inventaris($db);
         $this->service = new InventarisService($inventarisModel);
     }

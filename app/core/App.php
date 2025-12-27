@@ -1,21 +1,21 @@
 <?php
-
 class App {
     private $controller = null;
     private $method = 'index';
     private $params = [];
 
     public function __construct() {
-
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             http_response_code(200);
             exit();
         }
 
         $url = $this->parseUrl();
-
-        $controllerName = isset($url[0]) ? ucfirst(strtolower($url[0])) . 'Controller': 'InventarisController';
-
+        
+        // Tentukan controller name
+        $controllerName = isset($url[0]) ? ucfirst(strtolower($url[0])) . 'Controller' : 'MahasiswaController';
+        
+        // Cek apakah class sudah ada (sudah di-load di index.php)
         if (class_exists($controllerName)) {
             $this->controller = new $controllerName();
             unset($url[0]);
@@ -25,7 +25,7 @@ class App {
         }
 
         $httpMethod = $_SERVER['REQUEST_METHOD'];
-
+        
         switch ($httpMethod) {
             case 'GET':
                 if (isset($url[1]) && is_numeric($url[1])) {
@@ -46,7 +46,7 @@ class App {
                     $this->method = 'update';
                     $this->params = [$url[1]];
                 } else {
-                    $this->methodNotAllowed("ID inventaris diperlukan untuk UPDATE");
+                    $this->methodNotAllowed("ID diperlukan untuk UPDATE");
                     return;
                 }
                 break;
@@ -56,7 +56,7 @@ class App {
                     $this->method = 'delete';
                     $this->params = [$url[1]];
                 } else {
-                    $this->methodNotAllowed("ID inventaris diperlukan untuk DELETE");
+                    $this->methodNotAllowed("ID diperlukan untuk DELETE");
                     return;
                 }
                 break;
@@ -67,10 +67,7 @@ class App {
         }
 
         if (method_exists($this->controller, $this->method)) {
-            call_user_func_array(
-                [$this->controller, $this->method],
-                $this->params
-            );
+            call_user_func_array([$this->controller, $this->method], $this->params);
         } else {
             $this->notFound("Method {$this->method} tidak ditemukan di controller");
         }
@@ -78,10 +75,10 @@ class App {
 
     private function parseUrl() {
         if (isset($_GET['url'])) {
-            return explode(
-                '/',
-                filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL)
-            );
+            return explode('/', filter_var(
+                rtrim($_GET['url'], '/'), 
+                FILTER_SANITIZE_URL
+            ));
         }
         return [];
     }
@@ -89,7 +86,7 @@ class App {
     private function notFound($message = "Resource tidak ditemukan") {
         http_response_code(404);
         echo json_encode([
-            'success' => false,
+            'success' => false, 
             'message' => $message
         ], JSON_PRETTY_PRINT);
         exit();
@@ -98,7 +95,7 @@ class App {
     private function methodNotAllowed($message = "Method tidak diizinkan") {
         http_response_code(405);
         echo json_encode([
-            'success' => false,
+            'success' => false, 
             'message' => $message
         ], JSON_PRETTY_PRINT);
         exit();

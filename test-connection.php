@@ -2,14 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<h2>Test Koneksi Database Inventaris Barang Laboratorium</h2>";
+echo "<h2>Test Koneksi Database</h2>";
 
+// Test 1: Cek file exists
 echo "<h3>1. Cek File Exists</h3>";
 $files = [
     'app/config/Config.php',
     'app/config/Database.php',
-    'app/core/Model.php',
-    'app/models/Inventaris.php',
 ];
 
 foreach ($files as $file) {
@@ -20,56 +19,55 @@ foreach ($files as $file) {
     }
 }
 
+// Test 2: Load files
 echo "<h3>2. Load Files</h3>";
 try {
     require_once 'app/config/Config.php';
     echo "✅ Config.php loaded<br>";
-
+    
     require_once 'app/config/Database.php';
     echo "✅ Database.php loaded<br>";
-
-    require_once 'app/core/Model.php';
-    echo "✅ Model.php loaded<br>";
-
-    require_once 'app/models/Inventaris.php';
-    echo "✅ Inventaris.php loaded<br>";
-} catch (Throwable $e) {
-    echo "❌ Error loading file: " . $e->getMessage() . "<br>";
+} catch (Exception $e) {
+    echo "❌ Error loading: " . $e->getMessage() . "<br>";
     die();
 }
 
+// Test 3: Test database connection
 echo "<h3>3. Test Database Connection</h3>";
 try {
     $db = new Database();
     $conn = $db->getConnection();
-
+    
     if ($conn) {
         echo "✅ Database connected successfully!<br>";
-        echo "Database: <b>" . Config::$DB_NAME . "</b><br>";
-
-        // Test query inventaris
-        $stmt = $conn->query("SELECT COUNT(*) AS total FROM inventaris");
+        echo "Database: " . Config::$DB_NAME . "<br>";
+        
+        // Test query
+        $stmt = $conn->query("SELECT COUNT(*) as total FROM mahasiswas");
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        echo "✅ Total data inventaris: <b>" . $result['total'] . "</b><br>";
+        echo "✅ Total mahasiswa: " . $result['total'] . "<br>";
+        
     } else {
         echo "❌ Database connection failed<br>";
     }
-} catch (Throwable $e) {
-    echo "❌ Database Error: " . $e->getMessage() . "<br>";
+} catch (Exception $e) {
+    echo "❌ Error: " . $e->getMessage() . "<br>";
 }
 
-echo "<h3>4. Test Model Inventaris</h3>";
+echo "<h3>4. Test Model</h3>";
 try {
-    $inventaris = new Inventaris($conn);
-    $stmt = $inventaris->getAll();
+    require_once 'app/core/Model.php';
+    require_once 'app/models/Mahasiswa.php';
+    
+    $mahasiswa = new Mahasiswa($conn);
+    $stmt = $mahasiswa->getAll();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo "✅ Model Inventaris BERHASIL dijalankan<br>";
+    
+    echo "✅ Model works! Data:<br>";
     echo "<pre>";
     print_r($data);
     echo "</pre>";
-
-} catch (Throwable $e) {
+    
+} catch (Exception $e) {
     echo "❌ Model Error: " . $e->getMessage() . "<br>";
 }
